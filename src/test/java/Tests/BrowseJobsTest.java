@@ -27,7 +27,7 @@ public class BrowseJobsTest extends BaseTest  {
 		HomePage homepage = loginpage.signin("demo@jobportal.com","demo123");
 		BrowseJobsPage browsejobspage = homepage.click_browse_jobs_tab();
 		browsejobspage.apply_job("Senior Software Engineer", "Tech Solutions Inc");
-		Assert.assertEquals(browsejobspage.getMessage(), "Application submitted successfully!");
+		Assert.assertEquals(browsejobspage.getMessage(), "Application submitted !");
 		
 	}
 	
