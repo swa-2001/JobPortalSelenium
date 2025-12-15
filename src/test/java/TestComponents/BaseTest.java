@@ -2,6 +2,9 @@ package TestComponents;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
 
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -9,6 +12,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.commons.io.FileUtils;
 
 import PageObjects.LoginPage;
@@ -39,6 +46,23 @@ public class BaseTest {
 		driver.get(System.getProperty("user.dir")+"\\src\\main\\resources\\frontEndCode\\JobPortal.html");
 	}
 	
+public List<HashMap<String,String>> getJsonDatafile(String filepath) throws IOException {
+		
+		//reading json to string
+	String jsonContent = 	FileUtils.readFileToString(new File(filepath)
+			
+			,StandardCharsets.UTF_8);
+	
+	
+	//String to HashMap     Jackson databind
+	ObjectMapper mapper = new ObjectMapper();
+	List<HashMap<String,String>> data = mapper.readValue(jsonContent, new TypeReference<List<HashMap<String,String>>>(){});
+	
+	return data;
+	
+	}
+	
+
 	public String getScreenshot(String testname,WebDriver driver) throws IOException {
 		TakesScreenshot ts = (TakesScreenshot) driver;
 		File src = ts.getScreenshotAs(OutputType.FILE);
