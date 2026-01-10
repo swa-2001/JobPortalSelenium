@@ -10,7 +10,10 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -21,15 +24,25 @@ import org.apache.commons.io.FileUtils;
 import PageObjects.LoginPage;
 
 public class BaseTest {
-	public WebDriver driver;
-	LoginPage page;
 	
-//	public WebDriver initializeDriver() {
-//		driver=new ChromeDriver();
-//		return driver;
-//	}
-//	
-//	
+	
+	
+
+
+	public static ThreadLocal<WebDriver> tlDriver = new ThreadLocal<WebDriver>();
+	WebDriver driver;
+	LoginPage page;
+
+	public WebDriver initializeDriver(ChromeOptions options) {
+		driver=new ChromeDriver(options);
+		setDriver(driver);
+		return driver;
+	}
+	//	public static synchronized WebDriver getDriver() {
+	//		return tlDriver.get();
+	//	}
+	//	
+	//	
 //	@BeforeMethod(alwaysRun=true)
 //	public LoginPage launchApp() {
 //		driver=initializeDriver();
@@ -37,31 +50,42 @@ public class BaseTest {
 //		page.firstpage(driver);
 //		return page;
 //	}
+	public static WebDriver getDriver() {
+		return tlDriver.get();
+	}
+	public void setDriver(WebDriver driver) {
+		tlDriver.set(driver);
+	}
 
 	@BeforeMethod(alwaysRun=true)    //When specifying groups in testng.xml file, it will not consider this because it does not 
-	public void setup() {				// have group, so we have to specify this attribute
-		driver = new ChromeDriver();
-//		driver.get(System.getProperty("user.dir")+"\\src\\main\\resources\\frontEndCode\\JobPortal.html");
+	public void setup() {		// have group, so we have to specify this attribute
+		ChromeOptions options = new ChromeOptions();
+		options.addArguments("--incognito");
+		driver = initializeDriver(options);
+//		WebDriver driver = new ChromeDriver(options);
+		//		driver = new ChromeDriver(options);
+		//		driver.get(System.getProperty("user.dir")+"\\src\\main\\resources\\frontEndCode\\JobPortal.html");
 		driver.manage().window().maximize();
 		driver.get(System.getProperty("user.dir")+"\\src\\main\\resources\\frontEndCode\\JobPortal.html");
+//		tlDriver.set(driver);
 	}
-	
-public List<HashMap<String,String>> getJsonDatafile(String filepath) throws IOException {
-		
+
+	public List<HashMap<String,String>> getJsonDatafile(String filepath) throws IOException {
+
 		//reading json to string
-	String jsonContent = 	FileUtils.readFileToString(new File(filepath)
-			
-			,StandardCharsets.UTF_8);
-	
-	
-	//String to HashMap     Jackson databind
-	ObjectMapper mapper = new ObjectMapper();
-	List<HashMap<String,String>> data = mapper.readValue(jsonContent, new TypeReference<List<HashMap<String,String>>>(){});
-	
-	return data;
-	
+		String jsonContent = 	FileUtils.readFileToString(new File(filepath)
+
+				,StandardCharsets.UTF_8);
+
+
+		//String to HashMap     Jackson databind
+		ObjectMapper mapper = new ObjectMapper();
+		List<HashMap<String,String>> data = mapper.readValue(jsonContent, new TypeReference<List<HashMap<String,String>>>(){});
+
+		return data;
+
 	}
-	
+
 
 	public String getScreenshot(String testname,WebDriver driver) throws IOException {
 		TakesScreenshot ts = (TakesScreenshot) driver;
@@ -69,12 +93,15 @@ public List<HashMap<String,String>> getJsonDatafile(String filepath) throws IOEx
 		FileUtils.copyFile(src, new File(System.getProperty("user.dir")+"//reports//"+testname+"//.png"));
 		return System.getProperty("user.dir")+"//reports//"+testname+"//.png";
 	}
-	
-	
-	@AfterMethod(alwaysRun=true) //When specifying groups in testng.xml file, it will not consider this because it does not 
+
+
+	@AfterClass(alwaysRun=true) //When specifying groups in testng.xml file, it will not consider this because it does not 
 	public void teardown() {		// have group, so we have to specify this attribute
+		WebDriver driver = getDriver();
 		if(driver!=null){
-			driver.quit();
+						driver.quit();
+			//			tlDriver.remove();
 		}
 	}
+	
 }

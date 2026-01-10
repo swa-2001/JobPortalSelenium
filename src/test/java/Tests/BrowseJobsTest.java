@@ -7,25 +7,30 @@ import PageObjects.BrowseJobsPage;
 import PageObjects.HomePage;
 import PageObjects.LoginPage;
 import TestComponents.BaseTest;
+import org.openqa.selenium.WebDriver;
 
 public class BrowseJobsTest extends BaseTest  {
 
-	LoginPage loginpage;
+	// Helper method to login and navigate to Browse Jobs page
+	//new comment for testing webhooks in jenkins
+		private BrowseJobsPage loginAndGetBrowseJobsPage() {
+			WebDriver driver = getDriver();
+			LoginPage loginpage = new LoginPage(driver);
+			HomePage homepage = loginpage.signin("demo@jobportal.com", "demo123");
+			return homepage.click_browse_jobs_tab();
+		}
 	
 	@Test
 	public void jobs_count() {
-		loginpage = new LoginPage(driver);
-		HomePage homepage = loginpage.signin("demo@jobportal.com","demo123");
-		BrowseJobsPage browsejobspage = homepage.click_browse_jobs_tab();
+		
+		BrowseJobsPage browsejobspage = loginAndGetBrowseJobsPage();
 		int count = browsejobspage.no_of_jobs_list();
 		System.out.println(count);
 	}
 	
 	@Test
 	public void apply_for_job() {
-		loginpage = new LoginPage(driver);
-		HomePage homepage = loginpage.signin("demo@jobportal.com","demo123");
-		BrowseJobsPage browsejobspage = homepage.click_browse_jobs_tab();
+		BrowseJobsPage browsejobspage = loginAndGetBrowseJobsPage();
 		browsejobspage.apply_job("Senior Software Engineer", "Tech Solutions Inc");
 		Assert.assertEquals(browsejobspage.getMessage(), "Application submitted successfully!");
 		
@@ -33,9 +38,7 @@ public class BrowseJobsTest extends BaseTest  {
 	
 	@Test
 	public void apply_for_job_twice() {
-		loginpage = new LoginPage(driver);
-		HomePage homepage = loginpage.signin("demo@jobportal.com","demo123");
-		BrowseJobsPage browsejobspage = homepage.click_browse_jobs_tab();
+		BrowseJobsPage browsejobspage = loginAndGetBrowseJobsPage();
 		browsejobspage.apply_for_job_twice("Senior Software Engineer", "Tech Solutions Inc");
 		Assert.assertEquals(browsejobspage.getMessage(), "You have already applied for this position");
 	}
